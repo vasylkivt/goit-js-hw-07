@@ -3,39 +3,57 @@ import { galleryItems } from './gallery-items.js';
 const galleryEl = document.querySelector('.gallery');
 
 galleryEl.insertAdjacentHTML('afterbegin', makeGalleryMarkup(galleryItems));
-
 galleryEl.addEventListener('click', openOriginalImg);
 
+/**
+ *? Відкриває оригінальне зображення в лайтбоксі при кліку на зображення
+ * @param {MouseEvent} e - Об'єкт події click
+ */
 function openOriginalImg(e) {
   const { target: image } = e;
   e.preventDefault();
 
+  // Перевіряємо, чи клікнутий елемент є зображенням
   if (image.nodeName !== 'IMG') {
     return;
   }
 
+  // Отримуємо значення атрибутів source та alt зображення
   const src = image.dataset.source;
   const alt = image.alt;
 
+  // Створюємо екземпляр basicLightbox зображення та його атрибутів
   const instance = basicLightbox.create(
     `
     <img src="${src}" alt="${alt}">
   `,
     {
       handlerEscape: null,
+      /**
+       *? Обробляє подію 'onShow' для екземпляра лайтбокса
+       * @param {Object} instance - Екземпляр basicLightbox
+       */
       onShow(instance) {
         this.handlerEscape = handlerEsc.bind(instance);
         document.addEventListener('keydown', this.handlerEscape);
       },
+      /**
+       *? Обробляє подію 'onClose' для екземпляра лайтбокса
+       */
       onClose() {
         document.removeEventListener('keydown', this.handlerEscape);
       },
     }
   );
 
+  // Показуємо екземпляр лайтбокса
   instance.show();
 }
 
+/**
+ *? Обробляє подію натискання клавіші 'Escape' для закриття лайтбокса
+ * @param {KeyboardEvent} evt - Об'єкт події keydown
+ */
 function handlerEsc(evt) {
   if (evt.code === 'Escape') {
     console.log('Escape');
@@ -44,9 +62,9 @@ function handlerEsc(evt) {
 }
 
 /**
- *? Ця функція створює HTML-розмітку списку зображень на основі масиву об'єктів, який містить інформацію про опис, мініатюру та оригінальне зображення. Вона використовує метод reduce() для обчислення результуючого рядка HTML-коду, використовуючи функцію createLi(), яка створює HTML-код для кожного елементу списку зображень.
- * @param {array} gallery
- * @returns //? Вона повертає рядок HTML-коду, який містить li елементи
+ *? Створює розмітку галереї з вхідним масивом об'єктів галереї
+ * @param {GalleryItem[]} gallery - Масив елементів галереї
+ * @returns {string} - Розмітка галереї у вигляді рядка HTML
  */
 function makeGalleryMarkup(gallery) {
   return gallery.reduce(
@@ -57,11 +75,11 @@ function makeGalleryMarkup(gallery) {
 }
 
 /**
- *? Ця функція створює HTML-розмітку для одного елемента списку зображень на основі переданих параметрів: опису (description), мініатюри (preview) та оригінального зображення (original).
- * @param {string} description
- * @param {string} preview
- * @param {string} original
- * @returns//? Вона повертає рядок HTML-коду, який містить li елемент з класом gallery__item, який в свою чергу містить посилання (a) з класом gallery__link, яке містить зображення (img) з класом gallery__image, src та alt атрибутами, а також data-source атрибутом, який містить URL оригінального зображення.
+ *? Створює розмітку для елемента списку галереї
+ * @param {string} description - Опис зображення
+ * @param {string} preview - URL попереднього зображення
+ * @param {string} original - URL оригінального зображення
+ * @returns {string} - Розмітка елемента списку галереї у вигляді рядка HTML
  */
 function createLi(description, preview, original) {
   return `
